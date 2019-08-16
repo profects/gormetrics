@@ -1,0 +1,13 @@
+# macOS files
+.DS_Store
+# Keep secrets locally
+/.env
+# Keep vendored stuff local
+/vendor
+# JetBrains
+/.idea
+# dep
+_vendor*
+/Gopkg.lock
+# Visual Studio Code
+/.vscode
