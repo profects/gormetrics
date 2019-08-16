@@ -52,9 +52,11 @@ func (h *callbackHandler) afterUpdate(scope gormi.Scope) {
 	h.addToAfterScope(scope, h.counters.updates)
 }
 
-// addToAfterScope registers one or more of prometheus.CounterVec to increment after a scope (any type of query).
-// If any errors are in scope.DB().GetErrors(), a status "fail" will be assigned to the increment. Otherwise,
-// a status "success" will be assigned. Increments h.counters.all (gormetrics_all_total) by default.
+// addToAfterScope registers one or more of prometheus.CounterVec to increment
+// after a scope (any type of query). If any errors are in
+// scope.DB().GetErrors(), a status "fail" will be assigned to the increment.
+// Otherwise, a status "success" will be assigned.
+// Increments h.counters.all (gormetrics_all_total) by default.
 func (h *callbackHandler) addToAfterScope(scope gormi.Scope, vectors ...*prometheus.CounterVec) {
 	vectors = append(vectors, h.counters.all)
 
@@ -86,8 +88,9 @@ type extraInfo struct {
 }
 
 // newCallbackHandler creates a new callback handler configured with info and opts.
-// info does not contain any mandatory information for the functioning of the function, but sets label values
-// which can be useful in the usage of the provided metrics (driver, database, connection).
+// info does not contain any mandatory information for the functioning of the
+// function, but sets label values which can be useful in the usage of
+// the provided metrics (driver, database, connection).
 // Automatically registers metrics.
 func newCallbackHandler(info extraInfo, opts *pluginOpts) (*callbackHandler, error) {
 	counters, err := newQueryCounters(
@@ -107,7 +110,8 @@ func newCallbackHandler(info extraInfo, opts *pluginOpts) (*callbackHandler, err
 	}, nil
 }
 
-// callbackName creates a GORM callback name based on the configured plugin scope and callback name.
+// callbackName creates a GORM callback name based on the configured plugin
+// scope and callback name.
 func (c *pluginOpts) callbackName(callback string) string {
 	return fmt.Sprintf("%v:%v", c.gormPluginScope, callback)
 }

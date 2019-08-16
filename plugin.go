@@ -6,13 +6,17 @@ import (
 	"github.com/profects/gormetrics/gormi/adapter/unforked"
 )
 
-// Register gormetrics. ptions can be used to configure the Prometheus namespace and GORM plugin scope.
+// Register gormetrics. Options (opts) can be used to configure the Prometheus
+// namespace and GORM plugin scope.
 func Register(db *gorm.DB, dbName string, opts ...RegisterOpt) error {
 	return RegisterInterface(unforked.New(db), dbName, opts...)
 }
 
-// Register gormetrics. db is a gormi.DB instance, which can be created using one of the adapters in gormi/adapter.
-// Options can be used to configure the Prometheus namespace and GORM plugin scope.
+// RegisterInterface registers gormetrics with a gormi.DB interface, which can
+// be created using one of the adapters in gormi/adapter. This can be useful if
+// you use a forked version of GORM.
+// Options (opts) can be used to configure the Prometheus namespace and
+// GORM plugin scope.
 func RegisterInterface(db gormi.DB, dbName string, opts ...RegisterOpt) error {
 	if db == nil {
 		return ErrDbIsNil

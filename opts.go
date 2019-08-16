@@ -1,5 +1,7 @@
 package gormetrics
 
+// RegisterOpt if a function that operates on pluginOpts, configuring one or
+// more parameters of the plugin options.
 type RegisterOpt func(o *pluginOpts)
 
 type pluginOpts struct {

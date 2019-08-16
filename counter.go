@@ -6,10 +6,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var globalQueryCounters = map[string]queryCounters{}       //nolint:gochecknoglobals
-var globalDatabaseCounters = map[string]databaseCounters{} //nolint:gochecknoglobals
-var gqcMtx sync.Mutex                                      //nolint:gochecknoglobals
-var gdcMtx sync.Mutex                                      //nolint:gochecknoglobals
+var globalQueryCounters = map[string]queryCounters{}
+var globalDatabaseCounters = map[string]databaseCounters{}
+var gqcMtx sync.Mutex
+var gdcMtx sync.Mutex
 
 // queryCounters contains all counters that are exported.
 type queryCounters struct {

@@ -1,4 +1,4 @@
-package unforked //nolint:dupl
+package unforked
 
 import (
 	"database/sql"
@@ -8,6 +8,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// New creates a new gormi.DB interface from the unforked version of GORM for
+// gormetrics to use.
 func New(db *gorm.DB) gormi.DB {
 	return wrappedDB{db}
 }
