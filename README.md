@@ -9,14 +9,15 @@ Warning: this plugin is still in an early stage of development. APIs may change.
 ```go
 import "github.com/profects/gormetrics"
 
-err := gormetrics.Register(db, <database>)
+err := gormetrics.Register(db, <database name>)
 if err != nil {
 	// handle the error
 }
 ```
 
 gormetrics does not expose the metrics endpoint using promhttp, you have to do this yourself.
-Otherwise, you can use the following snippet:
+You can use the following snippet for exposing metrics on port 2112 at /metrics:
+
 ```go
 go func() {
     http.Handle("/metrics", promhttp.Handler())
