@@ -1,6 +1,6 @@
 # gormetrics
 
-A plugin for gorm providing metrics using Prometheus.
+A plugin for GORM providing metrics using Prometheus.
 
 Warning: this plugin is still in an early stage of development. APIs may change.
 
