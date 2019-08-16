@@ -2,6 +2,8 @@
 
 A plugin for gorm providing metrics using Prometheus.
 
+Warning: this plugin is still in an early stage of development. APIs may change.
+
 ## Usage
 
 ```go
@@ -18,7 +20,7 @@ Otherwise, you can use the following snippet:
 ```go
 go func() {
     http.Handle("/metrics", promhttp.Handler())
-    logger.Log.Fatal(http.ListenAndServe(":"+metricsPort, nil))
+    log.Fatal(http.ListenAndServe(":2112", nil))
 }()
 ```
 
