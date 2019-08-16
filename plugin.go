@@ -2,6 +2,7 @@ package gormetrics
 
 import (
 	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
 	"github.com/profects/gormetrics/gormi"
 	"github.com/profects/gormetrics/gormi/adapter/unforked"
 )
@@ -33,7 +34,7 @@ func RegisterInterface(db gormi.DB, dbName string, opts ...RegisterOpt) error {
 
 	handler, err := newCallbackHandler(info, handlerOpts)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not create callback handler")
 	}
 	handler.registerCallback(db.Callback())
 
@@ -41,7 +42,7 @@ func RegisterInterface(db gormi.DB, dbName string, opts ...RegisterOpt) error {
 		info, db.DB(),
 	), handlerOpts)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not create database metrics exporter")
 	}
 
 	go dbMetrics.maintain()

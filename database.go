@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -24,7 +25,7 @@ func databaseFrom(info extraInfo, db *sql.DB) *database {
 	}
 }
 
-func (d *database) collectConnectionStats(counters databaseCounters) {
+func (d *database) collectConnectionStats(counters *databaseCounters) {
 	d.mtx.Lock()
 
 	stats := d.db.Stats()
@@ -50,14 +51,14 @@ func (d *database) collectConnectionStats(counters databaseCounters) {
 }
 
 type databaseMetrics struct {
-	counters databaseCounters
+	counters *databaseCounters
 	db       *database
 }
 
 func newDatabaseMetrics(db *database, opts *pluginOpts) (*databaseMetrics, error) {
 	counters, err := newDatabaseCounters(opts.prometheusNamespace)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not create database counters")
 	}
 
 	return &databaseMetrics{

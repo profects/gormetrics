@@ -23,7 +23,7 @@ func sqlDriverToDriverName(driver driver.Driver) string {
 		for _, driverName := range sql.Drivers() {
 			// We ignore this error because it will occur. We only need the
 			// driver connected to the name.
-			db, _ := sql.Open(driverName, "") //nolint:errcheck
+			db, _ := sql.Open(driverName, "")
 
 			if db != nil {
 				driverType := reflect.TypeOf(db.Driver())

@@ -3,6 +3,7 @@ package gormetrics
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/profects/gormetrics/gormi"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -10,7 +11,7 @@ import (
 
 type callbackHandler struct {
 	opts          pluginOpts
-	counters      queryCounters
+	counters      *queryCounters
 	defaultLabels map[string]string
 }
 
@@ -93,11 +94,9 @@ type extraInfo struct {
 // the provided metrics (driver, database, connection).
 // Automatically registers metrics.
 func newCallbackHandler(info extraInfo, opts *pluginOpts) (*callbackHandler, error) {
-	counters, err := newQueryCounters(
-		opts.prometheusNamespace,
-	)
+	counters, err := newQueryCounters(opts.prometheusNamespace)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not create query counters")
 	}
 
 	return &callbackHandler{

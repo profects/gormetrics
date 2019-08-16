@@ -3,11 +3,12 @@ package gormetrics
 import (
 	"sync"
 
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var globalQueryCounters = map[string]queryCounters{}
-var globalDatabaseCounters = map[string]databaseCounters{}
+var globalQueryCounters = map[string]*queryCounters{}
+var globalDatabaseCounters = map[string]*databaseCounters{}
 var gqcMtx sync.Mutex
 var gdcMtx sync.Mutex
 
@@ -21,7 +22,7 @@ type queryCounters struct {
 }
 
 // newQueryCounters creates a new queryCounters instance with all counters valid.
-func newQueryCounters(namespace string) (queryCounters, error) {
+func newQueryCounters(namespace string) (*queryCounters, error) {
 	gqcMtx.Lock()
 	defer gqcMtx.Unlock()
 
@@ -38,24 +39,27 @@ func newQueryCounters(namespace string) (queryCounters, error) {
 		},
 	}
 
-	qc := queryCounters{
+	qc := &queryCounters{
 		all:     cc.new(metricAllTotal, helpAllTotal),
 		creates: cc.new(metricCreatesTotal, helpCreatesTotal),
 		deletes: cc.new(metricDeletesTotal, helpDeletesTotal),
 		queries: cc.new(metricQueriesTotal, helpQueriesTotal),
 		updates: cc.new(metricUpdatesTotal, helpUpdatesTotal),
 	}
-	globalQueryCounters[namespace] = qc
 
-	err := registerCollectors(
+	if err := registerCollectors(
 		qc.all,
 		qc.creates,
 		qc.deletes,
 		qc.queries,
 		qc.updates,
-	)
+	); err != nil {
+		return nil, errors.Wrap(err, "could not register collectors")
+	}
 
-	return qc, err
+	globalQueryCounters[namespace] = qc
+
+	return qc, nil
 }
 
 type databaseCounters struct {
@@ -64,7 +68,7 @@ type databaseCounters struct {
 	open  *prometheus.GaugeVec
 }
 
-func newDatabaseCounters(namespace string) (databaseCounters, error) {
+func newDatabaseCounters(namespace string) (*databaseCounters, error) {
 	gdcMtx.Lock()
 	defer gdcMtx.Unlock()
 
@@ -80,20 +84,23 @@ func newDatabaseCounters(namespace string) (databaseCounters, error) {
 		},
 	}
 
-	dc := databaseCounters{
+	dc := &databaseCounters{
 		idle:  vecCreator.new(metricIdleConnections, helpIdleConnections),
 		inUse: vecCreator.new(metricInUseConnections, helpInUseConnections),
 		open:  vecCreator.new(metricOpenConnections, helpOpenConnections),
 	}
-	globalDatabaseCounters[namespace] = dc
 
-	err := registerCollectors(
+	if err := registerCollectors(
 		dc.idle,
 		dc.inUse,
 		dc.open,
-	)
+	); err != nil {
+		return nil, err
+	}
 
-	return dc, err
+	globalDatabaseCounters[namespace] = dc
+
+	return dc, nil
 }
 
 // registerCollectors registers multiple instances of prometheus.Collector.
