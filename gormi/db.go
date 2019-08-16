@@ -3,9 +3,7 @@
 // how to use these interfaces.
 package gormi
 
-import (
-	"database/sql"
-)
+import "database/sql"
 
 // DB is an interface which can be easily satisfied by wrapping gorm.DB.
 type DB interface {
@@ -22,7 +20,7 @@ type Callback interface {
 	Update() CallbackProcessor
 }
 
-// CallbackProcessor is an interface which can be satisfied by wrapping 
+// CallbackProcessor is an interface which can be satisfied by wrapping
 // gorm.CallbackProcessor.
 type CallbackProcessor interface {
 	After(callbackName string) CallbackProcessor
