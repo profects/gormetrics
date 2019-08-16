@@ -30,5 +30,4 @@ type CallbackProcessor interface {
 // Scope is an interface which can be satisfied by wrapping gorm.Scope.
 type Scope interface {
 	DB() DB
-	SQLQuery() string
 }

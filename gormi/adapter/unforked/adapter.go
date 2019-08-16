@@ -85,7 +85,3 @@ func (w wrappedCallbackProcessor) Register(callbackName string, callback func(sc
 func (w wrappedScope) DB() gormi.DB {
 	return wrappedDB{w.scope.DB()}
 }
-
-func (w wrappedScope) SQLQuery() string {
-	return w.scope.SQL
-}
