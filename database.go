@@ -27,13 +27,14 @@ func databaseFrom(info extraInfo, db *sql.DB) *database {
 
 func (d *database) collectConnectionStats(counters *databaseCounters) {
 	d.mtx.Lock()
-
-	stats := d.db.Stats()
+	defer d.mtx.Unlock()
 
 	defaultLabels := prometheus.Labels{
 		labelDatabase: d.name,
 		labelDriver:   d.driverName,
 	}
+
+	stats := d.db.Stats()
 
 	counters.idle.
 		With(defaultLabels).
@@ -46,8 +47,6 @@ func (d *database) collectConnectionStats(counters *databaseCounters) {
 	counters.open.
 		With(defaultLabels).
 		Set(float64(stats.OpenConnections))
-
-	d.mtx.Unlock()
 }
 
 type databaseMetrics struct {
@@ -70,6 +69,7 @@ func newDatabaseMetrics(db *database, opts *pluginOpts) (*databaseMetrics, error
 func (d *databaseMetrics) maintain() {
 	ticker := time.NewTicker(time.Second * 3)
 
+	// Collect connection statistics every 3 seconds.
 	for range ticker.C {
 		d.db.collectConnectionStats(d.counters)
 	}

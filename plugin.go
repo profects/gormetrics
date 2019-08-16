@@ -24,13 +24,11 @@ func RegisterInterface(db gormi.DB, dbName string, opts ...RegisterOpt) error {
 	}
 
 	driverName := sqlDriverToDriverName(db.DB().Driver())
-
+	handlerOpts := getOpts(opts)
 	info := extraInfo{
 		dbName:     dbName,
 		driverName: driverName,
 	}
-
-	handlerOpts := getOpts(opts)
 
 	handler, err := newCallbackHandler(info, handlerOpts)
 	if err != nil {
@@ -38,13 +36,11 @@ func RegisterInterface(db gormi.DB, dbName string, opts ...RegisterOpt) error {
 	}
 	handler.registerCallback(db.Callback())
 
-	dbMetrics, err := newDatabaseMetrics(databaseFrom(
-		info, db.DB(),
-	), handlerOpts)
+	dbInterface := databaseFrom(info, db.DB())
+	dbMetrics, err := newDatabaseMetrics(dbInterface, handlerOpts)
 	if err != nil {
 		return errors.Wrap(err, "could not create database metrics exporter")
 	}
-
 	go dbMetrics.maintain()
 
 	return nil
