@@ -38,9 +38,9 @@ gormetrics exports the following metrics (counter vectors):
 * `gormetrics_updates_total`
 
 These all have the following labels:
-* `database: the name of the database`
-* `driver: the driver for the database (e.g. pq)`
-* `status: fail or success`
+* `database`: the name of the database
+* `driver`: the driver for the database (e.g. pq)
+* `status`: fail or success
 
 It also export the following metrics (gauge vectors):
 * `gormetrics_connections_idle`
