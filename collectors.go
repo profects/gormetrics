@@ -7,12 +7,21 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var globalQueryCounters = map[string]*queryCounters{}
-var globalDatabaseCounters = map[string]*databaseCounters{}
-var gqcMtx sync.Mutex
-var gdcMtx sync.Mutex
+type globalCollectors struct {
+	query    map[string]*queryCounters
+	database map[string]*databaseGauges
 
-// queryCounters contains all counters that are exported.
+	sync.Mutex
+}
+
+// collectors is used by newQueryCounters and newDatabaseGauges to cache existing
+// collectors so none are registered in Prometheus twice (this causes an error).
+var collectors = globalCollectors{
+	query:    make(map[string]*queryCounters),
+	database: make(map[string]*databaseGauges),
+}
+
+// queryCounters contains all gauges that are exported.
 type queryCounters struct {
 	all     *prometheus.CounterVec
 	creates *prometheus.CounterVec
@@ -21,12 +30,12 @@ type queryCounters struct {
 	updates *prometheus.CounterVec
 }
 
-// newQueryCounters creates a new queryCounters instance with all counters valid.
+// newQueryCounters creates a new queryCounters instance with all gauges valid.
 func newQueryCounters(namespace string) (*queryCounters, error) {
-	gqcMtx.Lock()
-	defer gqcMtx.Unlock()
+	collectors.Lock()
+	defer collectors.Unlock()
 
-	if gc, exists := globalQueryCounters[namespace]; exists {
+	if gc, exists := collectors.query[namespace]; exists {
 		return gc, nil
 	}
 
@@ -39,7 +48,7 @@ func newQueryCounters(namespace string) (*queryCounters, error) {
 		},
 	}
 
-	qc := &queryCounters{
+	qc := queryCounters{
 		all:     cc.new(metricAllTotal, helpAllTotal),
 		creates: cc.new(metricCreatesTotal, helpCreatesTotal),
 		deletes: cc.new(metricDeletesTotal, helpDeletesTotal),
@@ -57,22 +66,22 @@ func newQueryCounters(namespace string) (*queryCounters, error) {
 		return nil, errors.Wrap(err, "could not register collectors")
 	}
 
-	globalQueryCounters[namespace] = qc
+	collectors.query[namespace] = &qc
 
-	return qc, nil
+	return collectors.query[namespace], nil
 }
 
-type databaseCounters struct {
+type databaseGauges struct {
 	idle  *prometheus.GaugeVec
 	inUse *prometheus.GaugeVec
 	open  *prometheus.GaugeVec
 }
 
-func newDatabaseCounters(namespace string) (*databaseCounters, error) {
-	gdcMtx.Lock()
-	defer gdcMtx.Unlock()
+func newDatabaseGauges(namespace string) (*databaseGauges, error) {
+	collectors.Lock()
+	defer collectors.Unlock()
 
-	if gc, exists := globalDatabaseCounters[namespace]; exists {
+	if gc, exists := collectors.database[namespace]; exists {
 		return gc, nil
 	}
 
@@ -84,23 +93,23 @@ func newDatabaseCounters(namespace string) (*databaseCounters, error) {
 		},
 	}
 
-	dc := &databaseCounters{
+	dg := databaseGauges{
 		idle:  vecCreator.new(metricIdleConnections, helpIdleConnections),
 		inUse: vecCreator.new(metricInUseConnections, helpInUseConnections),
 		open:  vecCreator.new(metricOpenConnections, helpOpenConnections),
 	}
 
 	if err := registerCollectors(
-		dc.idle,
-		dc.inUse,
-		dc.open,
+		dg.idle,
+		dg.inUse,
+		dg.open,
 	); err != nil {
 		return nil, err
 	}
 
-	globalDatabaseCounters[namespace] = dc
+	collectors.database[namespace] = &dg
 
-	return dc, nil
+	return collectors.database[namespace], nil
 }
 
 // registerCollectors registers multiple instances of prometheus.Collector.

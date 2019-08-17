@@ -9,7 +9,7 @@ import "database/sql"
 type DB interface {
 	DB() *sql.DB
 	Callback() Callback
-	GetErrors() []error
+	Error() error
 }
 
 // Callback is an interface which can be satisfied by wrapping gorm.Callback.

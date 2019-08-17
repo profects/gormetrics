@@ -40,8 +40,8 @@ func (w wrappedDB) DB() *sql.DB {
 	return w.db.DB()
 }
 
-func (w wrappedDB) GetErrors() []error {
-	return w.db.GetErrors()
+func (w wrappedDB) Error() error {
+	return w.db.Error
 }
 
 func (w wrappedCallback) Create() gormi.CallbackProcessor {

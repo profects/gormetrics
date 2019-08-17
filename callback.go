@@ -38,32 +38,32 @@ func (h *callbackHandler) registerCallback(cb gormi.Callback) {
 }
 
 func (h *callbackHandler) afterCreate(scope gormi.Scope) {
-	h.addToAfterScope(scope, h.counters.creates)
+	h.updateVectors(scope, h.counters.creates)
 }
 
 func (h *callbackHandler) afterDelete(scope gormi.Scope) {
-	h.addToAfterScope(scope, h.counters.deletes)
+	h.updateVectors(scope, h.counters.deletes)
 }
 
 func (h *callbackHandler) afterQuery(scope gormi.Scope) {
-	h.addToAfterScope(scope, h.counters.queries)
+	h.updateVectors(scope, h.counters.queries)
 }
 
 func (h *callbackHandler) afterUpdate(scope gormi.Scope) {
-	h.addToAfterScope(scope, h.counters.updates)
+	h.updateVectors(scope, h.counters.updates)
 }
 
-// addToAfterScope registers one or more of prometheus.CounterVec to increment
-// after a scope (any type of query). If any errors are in
+// updateVectors registers one or more of prometheus.CounterVec to increment
+// with the status in scope (any type of query). If any errors are in
 // scope.DB().GetErrors(), a status "fail" will be assigned to the increment.
 // Otherwise, a status "success" will be assigned.
-// Increments h.counters.all (gormetrics_all_total) by default.
-func (h *callbackHandler) addToAfterScope(scope gormi.Scope, vectors ...*prometheus.CounterVec) {
+// Increments h.gauges.all (gormetrics_all_total) by default.
+func (h *callbackHandler) updateVectors(scope gormi.Scope, vectors ...*prometheus.CounterVec) {
 	vectors = append(vectors, h.counters.all)
 
-	hasErrors := len(scope.DB().GetErrors()) > 0
+	hasError := scope.DB().Error() != nil
 	status := metricStatusFail
-	if !hasErrors {
+	if !hasError {
 		status = metricStatusSuccess
 	}
 
@@ -96,7 +96,7 @@ type extraInfo struct {
 func newCallbackHandler(info extraInfo, opts *pluginOpts) (*callbackHandler, error) {
 	counters, err := newQueryCounters(opts.prometheusNamespace)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create query counters")
+		return nil, errors.Wrap(err, "could not create query gauges")
 	}
 
 	return &callbackHandler{

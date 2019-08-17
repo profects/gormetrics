@@ -13,8 +13,8 @@ type database struct {
 	name       string
 	driverName string
 
-	db  *sql.DB
-	mtx sync.Mutex
+	db *sql.DB
+	sync.Mutex
 }
 
 func databaseFrom(info extraInfo, db *sql.DB) *database {
@@ -25,9 +25,9 @@ func databaseFrom(info extraInfo, db *sql.DB) *database {
 	}
 }
 
-func (d *database) collectConnectionStats(counters *databaseCounters) {
-	d.mtx.Lock()
-	defer d.mtx.Unlock()
+func (d *database) collectConnectionStats(counters *databaseGauges) {
+	d.Lock()
+	defer d.Unlock()
 
 	defaultLabels := prometheus.Labels{
 		labelDatabase: d.name,
@@ -50,19 +50,19 @@ func (d *database) collectConnectionStats(counters *databaseCounters) {
 }
 
 type databaseMetrics struct {
-	counters *databaseCounters
-	db       *database
+	gauges *databaseGauges
+	db     *database
 }
 
 func newDatabaseMetrics(db *database, opts *pluginOpts) (*databaseMetrics, error) {
-	counters, err := newDatabaseCounters(opts.prometheusNamespace)
+	gauges, err := newDatabaseGauges(opts.prometheusNamespace)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create database counters")
+		return nil, errors.Wrap(err, "could not create database gauges")
 	}
 
 	return &databaseMetrics{
-		counters: counters,
-		db:       db,
+		gauges: gauges,
+		db:     db,
 	}, nil
 }
 
@@ -71,6 +71,6 @@ func (d *databaseMetrics) maintain() {
 
 	// Collect connection statistics every 3 seconds.
 	for range ticker.C {
-		d.db.collectConnectionStats(d.counters)
+		d.db.collectConnectionStats(d.gauges)
 	}
 }

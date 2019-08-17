@@ -19,9 +19,9 @@ func WithPrometheusNamespace(ns string) RegisterOpt {
 
 // WithGORMPluginScope sets a different plugin scope for the configured callbacks.
 // The default plugin scope is "gormetrics".
-func WithGORMPluginScope(pluginScope string) RegisterOpt {
+func WithGORMPluginScope(s string) RegisterOpt {
 	return func(o *pluginOpts) {
-		o.gormPluginScope = pluginScope
+		o.gormPluginScope = s
 	}
 }
 
