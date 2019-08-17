@@ -67,15 +67,15 @@ func (h *callbackHandler) updateVectors(scope gormi.Scope, vectors ...*prometheu
 		status = metricStatusSuccess
 	}
 
+	labels := mergeLabels(prometheus.Labels{
+		labelStatus: status,
+	}, h.defaultLabels)
+
 	for _, counter := range vectors {
 		if counter == nil {
 			continue
 		}
-		counter.With(
-			mergeLabels(prometheus.Labels{
-				labelStatus: status,
-			}, h.defaultLabels),
-		).Inc()
+		counter.With(labels).Inc()
 	}
 }
 
