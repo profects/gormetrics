@@ -36,7 +36,7 @@ func RegisterInterface(db gormi.DB, dbName string, opts ...RegisterOpt) error {
 	}
 	handler.registerCallback(db.Callback())
 
-	dbInterface := databaseFrom(info, db.DB())
+	dbInterface := newDatabase(info, db.DB())
 	dbMetrics, err := newDatabaseMetrics(dbInterface, handlerOpts)
 	if err != nil {
 		return errors.Wrap(err, "could not create database metrics exporter")

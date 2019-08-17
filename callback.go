@@ -9,6 +9,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// callbackHandler manages gorm query callback handling so query
+// statistics are always up to date.
 type callbackHandler struct {
 	opts          *pluginOpts
 	counters      *queryCounters

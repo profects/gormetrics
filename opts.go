@@ -25,18 +25,18 @@ func WithGORMPluginScope(s string) RegisterOpt {
 	}
 }
 
-// defaultCallbackHandlerOpts creates a new pluginOpts instance with the default values.
-func defaultCallbackHandlerOpts() *pluginOpts {
+// defaultPluginOpts creates a new pluginOpts instance with the default values.
+func defaultPluginOpts() *pluginOpts {
 	return &pluginOpts{
 		prometheusNamespace: "gormetrics",
 		gormPluginScope:     "gormetrics",
 	}
 }
 
-// getOpts creates a pluginOpts instance based on multiple user-defined options based on the default
-// options. See defaultCallbackOpts for the default options.
+// getOpts creates a pluginOpts instance based on multiple user-defined options based
+// on the default options. See defaultPluginOpts for the default options.
 func getOpts(opts []RegisterOpt) *pluginOpts {
-	c := defaultCallbackHandlerOpts()
+	c := defaultPluginOpts()
 	for _, o := range opts {
 		o(c)
 	}

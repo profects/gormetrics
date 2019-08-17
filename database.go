@@ -17,7 +17,9 @@ type database struct {
 	sync.Mutex
 }
 
-func databaseFrom(info extraInfo, db *sql.DB) *database {
+// newDatabase creates a new database wrapper containing the name of the database,
+// it's driver and the (sql) database itself.
+func newDatabase(info extraInfo, db *sql.DB) *database {
 	return &database{
 		name:       info.dbName,
 		driverName: info.driverName,
@@ -25,6 +27,7 @@ func databaseFrom(info extraInfo, db *sql.DB) *database {
 	}
 }
 
+// collectConnectionStats collects database connections for Prometheus to scrape.
 func (d *database) collectConnectionStats(counters *databaseGauges) {
 	d.Lock()
 	defer d.Unlock()
@@ -49,11 +52,14 @@ func (d *database) collectConnectionStats(counters *databaseGauges) {
 		Set(float64(stats.OpenConnections))
 }
 
+// databaseMetrics is a convenience struct for exporting database metrics to Prometheus.
 type databaseMetrics struct {
 	gauges *databaseGauges
 	db     *database
 }
 
+// newDatabaseMetrics creates a new databaseMetrics instance with a database backing it
+// for statistics. Use maintain to continuously collect statistics.
 func newDatabaseMetrics(db *database, opts *pluginOpts) (*databaseMetrics, error) {
 	gauges, err := newDatabaseGauges(opts.prometheusNamespace)
 	if err != nil {
@@ -66,10 +72,10 @@ func newDatabaseMetrics(db *database, opts *pluginOpts) (*databaseMetrics, error
 	}, nil
 }
 
+// maintain collects connection statistics every 3 seconds and.
 func (d *databaseMetrics) maintain() {
 	ticker := time.NewTicker(time.Second * 3)
 
-	// Collect connection statistics every 3 seconds.
 	for range ticker.C {
 		d.db.collectConnectionStats(d.gauges)
 	}

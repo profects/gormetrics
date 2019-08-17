@@ -30,7 +30,6 @@ type queryCounters struct {
 	updates *prometheus.CounterVec
 }
 
-// newQueryCounters creates a new queryCounters instance with all gauges valid.
 func newQueryCounters(namespace string) (*queryCounters, error) {
 	collectors.Lock()
 	defer collectors.Unlock()
