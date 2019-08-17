@@ -10,7 +10,7 @@ import (
 )
 
 type callbackHandler struct {
-	opts          pluginOpts
+	opts          *pluginOpts
 	counters      *queryCounters
 	defaultLabels map[string]string
 }
@@ -100,7 +100,7 @@ func newCallbackHandler(info extraInfo, opts *pluginOpts) (*callbackHandler, err
 	}
 
 	return &callbackHandler{
-		opts:     *opts,
+		opts:     opts,
 		counters: counters,
 		defaultLabels: map[string]string{
 			labelDriver:   info.driverName,
