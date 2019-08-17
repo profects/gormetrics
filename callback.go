@@ -102,7 +102,7 @@ func newCallbackHandler(info extraInfo, opts *pluginOpts) (*callbackHandler, err
 	return &callbackHandler{
 		opts:     opts,
 		counters: counters,
-		defaultLabels: map[string]string{
+		defaultLabels: prometheus.Labels{
 			labelDriver:   info.driverName,
 			labelDatabase: info.dbName,
 		},
