@@ -23,8 +23,8 @@ You can use the following snippet for exposing metrics on port 2112 at `/metrics
 
 ```go
 go func() {
-    http.Handle("/metrics", promhttp.Handler())
-    log.Fatal(http.ListenAndServe(":2112", nil))
+	http.Handle("/metrics", promhttp.Handler())
+	log.Fatal(http.ListenAndServe(":2112", nil))
 }()
 ```
 
