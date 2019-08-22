@@ -20,7 +20,7 @@ var driverNames = sqlDriverNames{
 
 // The database/sql API doesn't provide a way to get the registry name for
 // a driver from the driver type.
-// Adapter from https://github.com/golang/go/issues/12600#issuecomment-378363201
+// Adapted from https://github.com/golang/go/issues/12600#issuecomment-378363201.
 func sqlDriverToDriverName(driver driver.Driver) string {
 	driverNames.Lock()
 	defer driverNames.Unlock()
