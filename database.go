@@ -72,7 +72,7 @@ func newDatabaseMetrics(db *database, opts *pluginOpts) (*databaseMetrics, error
 	}, nil
 }
 
-// maintain collects connection statistics every 3 seconds and.
+// maintain collects connection statistics every 3 seconds.
 func (d *databaseMetrics) maintain() {
 	ticker := time.NewTicker(time.Second * 3)
 
