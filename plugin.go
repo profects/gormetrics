@@ -5,11 +5,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/profects/gormetrics/gormi"
 	"github.com/profects/gormetrics/gormi/adapter/unforked"
+	"reflect"
 )
 
 // Register gormetrics. Options (opts) can be used to configure the Prometheus
 // namespace and GORM plugin scope.
 func Register(db *gorm.DB, dbName string, opts ...RegisterOpt) error {
+	if db == nil {
+		return ErrDbIsNil
+	}
 	return RegisterInterface(unforked.New(db), dbName, opts...)
 }
 
@@ -19,7 +23,7 @@ func Register(db *gorm.DB, dbName string, opts ...RegisterOpt) error {
 // Options (opts) can be used to configure the Prometheus namespace and
 // GORM plugin scope.
 func RegisterInterface(db gormi.DB, dbName string, opts ...RegisterOpt) error {
-	if db == nil {
+	if v := reflect.ValueOf(db); v.Kind() == reflect.Ptr && v.IsNil() {
 		return ErrDbIsNil
 	}
 
