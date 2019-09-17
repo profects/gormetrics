@@ -1,11 +1,12 @@
 package gormetrics
 
 import (
+	"reflect"
+
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/profects/gormetrics/gormi"
 	"github.com/profects/gormetrics/gormi/adapter/unforked"
-	"reflect"
 )
 
 // Register gormetrics. Options (opts) can be used to configure the Prometheus
