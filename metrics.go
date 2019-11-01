@@ -1,29 +1,45 @@
+// Copyright 2019 Profects Group B.V.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package gormetrics
 
-const labelStatus = "status"
-const labelDatabase = "database"
-const labelDriver = "driver"
+const (
+	labelStatus   = "status"
+	labelDatabase = "database"
+	labelDriver   = "driver"
 
-// Statuses for metrics (values of labelStatus).
-const metricStatusFail = "fail"
-const metricStatusSuccess = "success"
+	// Statuses for metrics (values of labelStatus).
+	metricStatusFail    = "fail"
+	metricStatusSuccess = "success"
 
-const metricOpenConnections = "connections_open"
-const metricIdleConnections = "connections_idle"
-const metricInUseConnections = "connections_in_use"
+	metricOpenConnections  = "connections_open"
+	metricIdleConnections  = "connections_idle"
+	metricInUseConnections = "connections_in_use"
 
-const helpOpenConnections = `Currently open connections to the database`
-const helpIdleConnections = `Currently idle connections to the database`
-const helpInUseConnections = `Currently in use connections`
+	helpOpenConnections  = `Currently open connections to the database`
+	helpIdleConnections  = `Currently idle connections to the database`
+	helpInUseConnections = `Currently in use connections`
 
-const metricAllTotal = "all_total"
-const metricCreatesTotal = "creates_total"
-const metricDeletesTotal = "deletes_total"
-const metricQueriesTotal = "queries_total"
-const metricUpdatesTotal = "updates_total"
+	metricAllTotal     = "all_total"
+	metricCreatesTotal = "creates_total"
+	metricDeletesTotal = "deletes_total"
+	metricQueriesTotal = "queries_total"
+	metricUpdatesTotal = "updates_total"
 
-const helpAllTotal = `All queries requested`
-const helpCreatesTotal = `All create queries requested`
-const helpDeletesTotal = `All delete queries requested`
-const helpQueriesTotal = `All select queries requested`
-const helpUpdatesTotal = `All update queries requested`
+	helpAllTotal     = `All queries requested`
+	helpCreatesTotal = `All create queries requested`
+	helpDeletesTotal = `All delete queries requested`
+	helpQueriesTotal = `All select queries requested`
+	helpUpdatesTotal = `All update queries requested`
+)
