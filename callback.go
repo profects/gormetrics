@@ -32,22 +32,22 @@ type callbackHandler struct {
 }
 
 func (h *callbackHandler) registerCallback(cb gormi.Callback) {
-	cb.Create().After("gorm:create").Register(
+	cb.Create().After("gorm:after_create").Register(
 		h.opts.callbackName("after_create"),
 		h.afterCreate,
 	)
 
-	cb.Delete().After("gorm:delete").Register(
+	cb.Delete().After("gorm:after_delete").Register(
 		h.opts.callbackName("after_delete"),
 		h.afterDelete,
 	)
 
-	cb.Query().After("gorm:query").Register(
+	cb.Query().After("gorm:after_query").Register(
 		h.opts.callbackName("after_query"),
 		h.afterQuery,
 	)
 
-	cb.Update().After("gorm:update").Register(
+	cb.Update().After("gorm:after_update").Register(
 		h.opts.callbackName("after_update"),
 		h.afterUpdate,
 	)
