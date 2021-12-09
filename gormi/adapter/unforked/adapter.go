@@ -19,7 +19,7 @@ import (
 
 	"github.com/profects/gormetrics/gormi"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // New creates a new gormi.DB interface from the unforked version of GORM for
