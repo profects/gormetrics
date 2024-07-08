@@ -1,4 +1,4 @@
-// Copyright 2019 Profects Group B.V.
+// Copyright 2024 Profects Group B.V.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,45 @@ import (
 	"github.com/pkg/errors"
 	"github.com/profects/gormetrics/gormi"
 	"github.com/profects/gormetrics/gormi/adapter/unforked"
+
+	gormv2 "gorm.io/gorm"
 )
+
+// RegisterV2 gormetrics. Options (opts) can be used to configure the Prometheus
+// namespace and GORM plugin scope.
+func RegisterV2(db *gormv2.DB, dbName string, opts ...RegisterOpt) error {
+	if v := reflect.ValueOf(db); v.Kind() == reflect.Ptr && v.IsNil() {
+		return ErrDbIsNil
+	}
+
+	driverName := db.Dialector.Name()
+	handlerOpts := getOpts(opts)
+	info := extraInfo{
+		dbName:     dbName,
+		driverName: driverName,
+	}
+
+	handler, err := newCallbackHandler(info, handlerOpts)
+	if err != nil {
+		return errors.Wrap(err, "could not create callback handler")
+	}
+	if err := handler.registerCallbackV2(db); err != nil {
+		return errors.Wrap(err, "could not register callbacks")
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return errors.Wrap(err, "could not get database")
+	}
+	dbInterface := newDatabase(info, sqlDB)
+	dbMetrics, err := newDatabaseMetrics(dbInterface, handlerOpts)
+	if err != nil {
+		return errors.Wrap(err, "could not create database metrics exporter")
+	}
+	go dbMetrics.maintain()
+
+	return nil
+}
 
 // Register gormetrics. Options (opts) can be used to configure the Prometheus
 // namespace and GORM plugin scope.

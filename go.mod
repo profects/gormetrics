@@ -1,4 +1,4 @@
-// Copyright 2019 Profects Group B.V.
+// Copyright 2024 Profects Group B.V.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,4 +22,5 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v1.3.0
 	golang.org/x/sys v0.0.0-20191220220014-0732a990476f // indirect
+	gorm.io/gorm v1.25.10
 )

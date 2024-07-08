@@ -1,4 +1,4 @@
-// Copyright 2019 Profects Group B.V.
+// Copyright 2024 Profects Group B.V.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package gormetrics
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 
 	"github.com/pkg/errors"
 	"github.com/profects/gormetrics/gormi"
@@ -29,6 +30,37 @@ type callbackHandler struct {
 	opts          *pluginOpts
 	counters      *queryCounters
 	defaultLabels map[string]string
+}
+
+func (h *callbackHandler) registerCallbackV2(cb *gorm.DB) error {
+	if err := cb.Callback().Create().After("gorm:after_create").Register(
+		h.opts.callbackName("after_create"),
+		h.afterCreateV2,
+	); err != nil {
+		return err
+	}
+
+	if err := cb.Callback().Delete().After("gorm:after_delete").Register(
+		h.opts.callbackName("after_delete"),
+		h.afterDeleteV2,
+	); err != nil {
+		return err
+	}
+
+	if err := cb.Callback().Query().After("gorm:after_query").Register(
+		h.opts.callbackName("after_query"),
+		h.afterQueryV2,
+	); err != nil {
+		return err
+	}
+
+	if err := cb.Callback().Update().After("gorm:after_update").Register(
+		h.opts.callbackName("after_update"),
+		h.afterUpdateV2,
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (h *callbackHandler) registerCallback(cb gormi.Callback) {
@@ -53,20 +85,35 @@ func (h *callbackHandler) registerCallback(cb gormi.Callback) {
 	)
 }
 
-func (h *callbackHandler) afterCreate(scope gormi.Scope) {
-	h.updateVectors(scope, h.counters.creates)
+func (h *callbackHandler) afterCreateV2(scope *gorm.DB) {
+	h.updateVectors(scope.Statement.Error, h.counters.creates)
 }
 
+func (h *callbackHandler) afterCreate(scope gormi.Scope) {
+	h.updateVectors(scope.DB().Error(), h.counters.creates)
+}
+
+func (h *callbackHandler) afterDeleteV2(scope *gorm.DB) {
+	h.updateVectors(scope.Statement.Error, h.counters.deletes)
+}
 func (h *callbackHandler) afterDelete(scope gormi.Scope) {
-	h.updateVectors(scope, h.counters.deletes)
+	h.updateVectors(scope.DB().Error(), h.counters.deletes)
+}
+
+func (h *callbackHandler) afterQueryV2(scope *gorm.DB) {
+	h.updateVectors(scope.Statement.Error, h.counters.queries)
 }
 
 func (h *callbackHandler) afterQuery(scope gormi.Scope) {
-	h.updateVectors(scope, h.counters.queries)
+	h.updateVectors(scope.DB().Error(), h.counters.queries)
+}
+
+func (h *callbackHandler) afterUpdateV2(scope *gorm.DB) {
+	h.updateVectors(scope.Statement.Error, h.counters.updates)
 }
 
 func (h *callbackHandler) afterUpdate(scope gormi.Scope) {
-	h.updateVectors(scope, h.counters.updates)
+	h.updateVectors(scope.DB().Error(), h.counters.updates)
 }
 
 // updateVectors registers one or more of prometheus.CounterVec to increment
@@ -74,10 +121,10 @@ func (h *callbackHandler) afterUpdate(scope gormi.Scope) {
 // scope.DB().GetErrors(), a status "fail" will be assigned to the increment.
 // Otherwise, a status "success" will be assigned.
 // Increments h.gauges.all (gormetrics_all_total) by default.
-func (h *callbackHandler) updateVectors(scope gormi.Scope, vectors ...*prometheus.CounterVec) {
+func (h *callbackHandler) updateVectors(err error, vectors ...*prometheus.CounterVec) {
 	vectors = append(vectors, h.counters.all)
 
-	hasError := scope.DB().Error() != nil
+	hasError := err != nil
 	status := metricStatusFail
 	if !hasError {
 		status = metricStatusSuccess
